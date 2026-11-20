@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SI-PRODA Mahakam Ulu | Laporan RT & Dasawisma</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts & FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        @media print {
+            body * { visibility: hidden; }
+            #printableArea, #printableArea * { visibility: visible; }
+            #printableArea { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Top Header Navbar -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 p-2 rounded-lg text-white">
+                    <i class="fa-solid fa-mountain-city text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-sm sm:text-lg tracking-tight leading-tight">SI-PRODA MAHAKAM ULU</h1>
+                    <p class="text-[10px] sm:text-xs text-slate-400">Sistem Laporan Pendamping Kampung (RT & Dasawisma)</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="hidden md:inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-900 text-blue-200 border border-blue-700">
+                    <i class="fa-solid fa-user-shield mr-1.5"></i> Pendamping Kampung
+                </span>
+                <button type="button" id="openModalBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition shadow-sm flex items-center space-x-2 cursor-pointer">
+                    <i class="fa-solid fa-plus"></i>
+                    <span id="btnAddText">Tambah Laporan</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8" id="printableArea">
+
+        <!-- Notification Banner -->
+        <div id="alertBox" class="hidden bg-emerald-100 border border-emerald-400 text-emerald-800 px-4 py-3 rounded-xl relative shadow-sm flex items-center justify-between transition-all duration-300">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+                <span id="alertMessage" class="text-sm font-medium">Berhasil menyimpan data laporan.</span>
+            </div>
+            <button type="button" id="closeAlertBtn" class="text-emerald-700 hover:text-emerald-900 cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Dashboard Overview Cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Laporan</p>
+                    <h3 id="statTotal" class="text-3xl font-bold text-slate-900 mt-1">0</h3>
+                    <p class="text-xs text-blue-600 mt-2 font-medium"><i class="fa-solid fa-folder-open mr-1"></i> RT & Dasawisma</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-inner">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Rata-Rata Progres</p>
+                    <h3 id="statAvgProgress" class="text-3xl font-bold text-slate-900 mt-1">0%</h3>
+                    <div class="w-24 bg-slate-100 rounded-full h-1.5 mt-3 overflow-hidden">
+                        <div id="statAvgBar" class="bg-blue-600 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl shadow-inner">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Anggaran Rencana</p>
+                    <h3 id="statTotalRencana" class="text-xl font-bold text-slate-900 mt-1">Rp 0</h3>
+                    <p class="text-xs text-slate-500 mt-2">Akumulasi Kegiatan</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-inner">
+                    <i class="fa-solid fa-wallet"></i>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Anggaran Realisasi</p>
+                    <h3 id="statTotalRealisasi" class="text-xl font-bold text-emerald-600 mt-1">Rp 0</h3>
+                    <p class="text-xs text-emerald-600 mt-2 font-medium">Serapan Dana</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-inner">
+                    <i class="fa-solid fa-money-bill-transfer"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab Switcher Navigation -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-200 gap-4 pb-2">
+            <div class="flex space-x-6">
+                <button type="button" id="tabBtnRt" class="pb-3 font-bold text-sm sm:text-base border-b-2 border-blue-600 text-blue-600 flex items-center space-x-2 transition cursor-pointer">
+                    <i class="fa-solid fa-house-chimney"></i>
+                    <span>Kegiatan RT <span id="badgeRt" class="ml-1.5 bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">0</span></span>
+                </button>
+                <button type="button" id="tabBtnDasawisma" class="pb-3 font-bold text-sm sm:text-base border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 transition cursor-pointer">
+                    <i class="fa-solid fa-people-group"></i>
+                    <span>Kegiatan Dasawisma <span id="badgeDasawisma" class="ml-1.5 bg-slate-200 text-slate-700 text-xs px-2 py-0.5 rounded-full">0</span></span>
+                </button>
+            </div>
+            <div class="flex items-center space-x-2 flex-wrap gap-2">
+                <button type="button" id="clearHistoryBtn" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-sm cursor-pointer">
+                    <i class="fa-solid fa-trash-can"></i> <span>Hapus Semua Histori</span>
+                </button>
+                <button type="button" id="exportExcelBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-sm cursor-pointer">
+                    <i class="fa-solid fa-file-excel"></i> <span>Export Excel</span>
+                </button>
+                <button type="button" id="printBtn" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-sm cursor-pointer">
+                    <i class="fa-solid fa-print"></i> <span>Cetak / Print PDF</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters & Search Toolbar -->
+        <section class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+            <div class="relative md:col-span-1">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" id="searchInput" placeholder="Cari kegiatan/pendamping..." class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition">
+            </div>
+            <div>
+                <select id="filterKecamatan" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 font-medium text-slate-700">
+                    <option value="">Semua Kecamatan</option>
+                    <option value="Laham">Laham</option>
+                    <option value="Long Apari">Long Apari</option>
+                    <option value="Long Bagun">Long Bagun</option>
+                    <option value="Long Hubung">Long Hubung</option>
+                    <option value="Long Pahangai">Long Pahangai</option>
+                </select>
+            </div>
+            <div>
+                <select id="filterKampung" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 font-medium text-slate-700">
+                    <option value="">Semua Kampung</option>
+                </select>
+            </div>
+            <div class="flex items-center justify-end space-x-3">
+                <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200 w-full justify-center">
+                    <button type="button" id="btnCardView" class="p-2 rounded-lg text-blue-600 bg-white shadow-sm transition text-xs font-semibold px-3 flex-1 cursor-pointer"><i class="fa-solid fa-grid-2 mr-1"></i> Card</button>
+                    <button type="button" id="btnTableView" class="p-2 rounded-lg text-slate-600 hover:text-slate-900 transition text-xs font-semibold px-3 flex-1 cursor-pointer"><i class="fa-solid fa-table mr-1"></i> Tabel</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Display Section -->
+        <section>
+            <div id="emptyState" class="hidden text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300">
+                <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto text-2xl mb-3">
+                    <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <h3 class="font-bold text-slate-700 text-base">Belum ada data laporan</h3>
+                <p class="text-slate-500 text-sm max-w-sm mx-auto mt-1">Mulai buat laporan baru sesuai tab yang sedang aktif dengan menekan tombol tambah.</p>
+                <button type="button" id="emptyAddBtn" class="mt-4 inline-flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-700 transition cursor-pointer">
+                    <i class="fa-solid fa-plus"></i> <span>Tambah Laporan</span>
+                </button>
+            </div>
+
+            <!-- Card View Container -->
+            <div id="cardContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+            <!-- Table View Container -->
+            <div id="tableContainer" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr id="tableHeader" class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider"></tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-200 text-sm text-slate-700"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Form (Create / Edit Report) -->
+    <div id="reportModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="px-6 py-5 bg-slate-900 text-white flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-blue-600 p-2 rounded-lg text-white">
+                        <i class="fa-solid fa-file-pen"></i>
+                    </div>
+                    <div>
+                        <h3 id="modalTitle" class="font-bold text-base">Tambah Laporan</h3>
+                        <p class="text-xs text-slate-400">Wilayah Kabupaten Mahakam Ulu</p>
+                    </div>
+                </div>
+                <button type="button" id="closeModalBtn" class="text-slate-400 hover:text-white p-2 rounded-lg transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form id="reportForm" class="p-6 overflow-y-auto space-y-5">
+                <input type="hidden" id="reportId">
+                <input type="hidden" id="formType" value="rt">
+
+                <!-- Nama Pendamping & Tanggal -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Nama Pendamping Kampung</label>
+                        <input type="text" id="facilitatorName" required placeholder="Masukkan Nama Lengkap Pendamping" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Tanggal Laporan</label>
+                        <input type="date" id="reportDate" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition font-medium">
+                    </div>
+                </div>
+
+                <!-- Wilayah Selectors -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Pilih Kecamatan</label>
+                        <select id="formKecamatan" required class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 font-medium text-slate-700">
+                            <option value="">-- Pilih Kecamatan --</option>
+                            <option value="Laham">Laham</option>
+                            <option value="Long Apari">Long Apari</option>
+                            <option value="Long Bagun">Long Bagun</option>
+                            <option value="Long Hubung">Long Hubung</option>
+                            <option value="Long Pahangai">Long Pahangai</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Pilih Kampung</label>
+                        <select id="formKampung" required class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 font-medium text-slate-700">
+                            <option value="">-- Pilih Kecamatan Dulu --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dynamic Form Fields Container -->
+                <div id="dynamicFormFields" class="space-y-4"></div>
+
+                <!-- Pilihan Progres Persen Berjalan (0% - 100%) dengan Slider & Tombol Cepat -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-semibold text-slate-700 uppercase">Persentase Progres Berjalan</label>
+                        <span id="progressTextVal" class="text-xs font-bold bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full">50%</span>
+                    </div>
+                    <input type="range" id="progressSlider" min="0" max="100" value="50" class="w-full accent-blue-600 cursor-pointer">
+                    <div class="grid grid-cols-5 gap-2">
+                        <button type="button" onclick="setProgressPercent(0)" class="py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-100 transition shadow-sm cursor-pointer">0%</button>
+                        <button type="button" onclick="setProgressPercent(25)" class="py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-100 transition shadow-sm cursor-pointer">25%</button>
+                        <button type="button" onclick="setProgressPercent(50)" class="py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-100 transition shadow-sm cursor-pointer">50%</button>
+                        <button type="button" onclick="setProgressPercent(75)" class="py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-100 transition shadow-sm cursor-pointer">75%</button>
+                        <button type="button" onclick="setProgressPercent(100)" class="py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-100 transition shadow-sm cursor-pointer">100%</button>
+                    </div>
+                </div>
+
+                <!-- Upload Dokumentasi Foto -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Dokumentasi Foto Kegiatan</label>
+                    <div class="border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-4 text-center cursor-pointer transition bg-slate-50 relative group">
+                        <input type="file" id="photoFile" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+                        <div class="space-y-2">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto text-lg group-hover:scale-110 transition">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <div class="text-xs text-slate-600 font-medium">
+                                <span class="text-blue-600 font-semibold">Klik untuk upload foto</span> atau seret file ke sini
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="photoUrl" value="">
+                    <div id="imagePreviewContainer" class="hidden mt-3 relative inline-block">
+                        <img id="imagePreview" src="" alt="Preview" class="w-32 h-24 object-cover rounded-xl border border-slate-200 shadow-sm">
+                        <button type="button" id="removePhotoBtn" class="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs shadow cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+
+                <!-- Tanda Tangan Digital (Signature Pad) -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-semibold text-slate-700 uppercase">Tanda Tangan Digital Pendamping</label>
+                        <button type="button" id="clearSigBtn" class="text-xs text-red-600 hover:underline font-medium cursor-pointer"><i class="fa-solid fa-rotate-right mr-1"></i> Ulangi TTD</button>
+                    </div>
+                    <div class="border border-slate-300 rounded-xl bg-white overflow-hidden shadow-inner">
+                        <canvas id="sigCanvas" class="w-full h-36 cursor-crosshair touch-none bg-white" width="550" height="140"></canvas>
+                    </div>
+                    <input type="hidden" id="signatureDataUrl" value="">
+                    <p class="text-[10px] text-slate-400 mt-1">Tanda tangani langsung pada kotak putih di atas menggunakan mouse atau jari/touchscreen.</p>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex items-center justify-end space-x-3 pt-3 border-t border-slate-200">
+                    <button type="button" id="cancelModalBtn" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-100 transition cursor-pointer">Batal</button>
+                    <button type="submit" id="saveReportBtn" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition shadow-sm cursor-pointer">Simpan Laporan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Detail View Modal -->
+    <div id="detailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto hidden">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+                <h3 class="font-bold text-base">Detail Laporan & Tanda Tangan</h3>
+                <button type="button" id="closeDetailBtn" class="text-slate-400 hover:text-white p-2 rounded-lg transition cursor-pointer"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="detailContent" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto"></div>
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex justify-end">
+                <button type="button" id="closeDetailFooterBtn" class="px-4 py-2 bg-slate-800 text-white rounded-xl text-xs font-medium hover:bg-slate-900 cursor-pointer">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>&copy; 2026 Sistem Pelaporan Pendamping Kampung (SI-PRODA). Kabupaten Mahakam Ulu. Hak Cipta Dilindungi.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        const mahakamUluData = {
+            "Laham": ["Laham", "Danum Poroy", "Muara Ratah", "Long Gelawang", "Nyaribungan"],
+            "Long Apari": ["Tiong Ohang", "Long Apari", "Noha Silat", "Noha Tivab", "Long Penaneh I", "Long Penaneh II", "Long Penaneh III", "Long Kerioq", "Tiong Bu'u", "Noha Buan"],
+            "Long Bagun": ["Ujoh Bilang", "Long Bagun Ilir", "Long Bagun Ulu", "Batu Majang", "Batuq Kelo", "Long Melaham", "Mamahak Ulu", "Mamahak Besar", "Rukun Damai", "Long Merah", "Long Hurai"],
+            "Long Hubung": ["Datah Bilang Baru", "Datah Bilang Ulu", "Datah Bilang Ilir", "Lutan", "Mata Libaq", "Sirau", "Wana Pariq", "Mamahak Teboq", "Tri Pariq Makmur", "Long Hubung"],
+            "Long Pahangai": ["Long Pahangai I", "Long Pahangai II", "Lirung Ubing", "Datah Suling", "Long Lunuk", "Long Lunuk Baru", "Long Tuyoq", "Liu Mulang", "Datah Naha", "Long Isun", "Naha Aruq", "Long Pakaq", "Long Pakaq Baru", "Delang Kerohong"]
+        };
+
+        let currentTab = 'rt';
+        let currentViewMode = 'card';
+        let rtReports = JSON.parse(localStorage.getItem('mahakam_rt_reports')) || [];
+        let dasawismaReports = JSON.parse(localStorage.getItem('mahakam_dasawisma_reports')) || [];
+
+        // Signature Canvas Variables
+        let canvas, ctx, isDrawing = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initEventListeners();
+            initSignaturePad();
+            renderApp();
+        });
+
+        function initEventListeners() {
+            // Header & Navbar
+            document.getElementById('openModalBtn').addEventListener('click', () => openModal());
+            document.getElementById('emptyAddBtn').addEventListener('click', () => openModal());
+            document.getElementById('closeAlertBtn').addEventListener('click', hideAlert);
+
+            // Tabs
+            document.getElementById('tabBtnRt').addEventListener('click', () => switchTab('rt'));
+            document.getElementById('tabBtnDasawisma').addEventListener('click', () => switchTab('dasawisma'));
+
+            // Toolbar buttons
+            document.getElementById('clearHistoryBtn').addEventListener('click', clearAllHistory);
+            document.getElementById('exportExcelBtn').addEventListener('click', () => exportData('excel'));
+            document.getElementById('printBtn').addEventListener('click', printReport);
+
+            // Search & Filter
+            document.getElementById('searchInput').addEventListener('input', filterReports);
+            document.getElementById('filterKecamatan').addEventListener('change', onFilterKecamatanChange);
+            document.getElementById('filterKampung').addEventListener('change', filterReports);
+
+            // View Mode
+            document.getElementById('btnCardView').addEventListener('click', () => setViewMode('card'));
+            document.getElementById('btnTableView').addEventListener('click', () => setViewMode('table'));
+
+            // Modal Controls
+            document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+            document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+            document.getElementById('reportModal').addEventListener('click', (e) => {
+                if (e.target.id === 'reportModal') closeModal();
+            });
+
+            // Form Kecamatan change in modal
+            document.getElementById('formKecamatan').addEventListener('change', onFormKecamatanChange);
+
+            // Progress Slider
+            document.getElementById('progressSlider').addEventListener('input', (e) => {
+                setProgressPercent(e.target.value);
+            });
+
+            // Photo upload
+            document.getElementById('photoFile').addEventListener('change', handlePhotoUpload);
+            document.getElementById('removePhotoBtn').addEventListener('click', removePhoto);
+
+            // Signature buttons
+            document.getElementById('clearSigBtn').addEventListener('click', clearSignature);
+
+            // Detail modal
+            document.getElementById('closeDetailBtn').addEventListener('click', closeDetailModal);
+            document.getElementById('closeDetailFooterBtn').addEventListener('click', closeDetailModal);
+            document.getElementById('detailModal').addEventListener('click', (e) => {
+                if (e.target.id === 'detailModal') closeDetailModal();
+            });
+
+            // Form Submit handler
+            document.getElementById('reportForm').addEventListener('submit', saveReport);
+        }
+
+        function initSignaturePad() {
+            canvas = document.getElementById('sigCanvas');
+            if (!canvas) return;
+            ctx = canvas.getContext('2d');
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2;
+            ctx.lineCap = 'round';
+
+            // Mouse events
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDraw);
+            canvas.addEventListener('mouseleave', stopDraw);
+
+            // Touch events for mobile/tablet
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousedown', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const mouseEvent = new MouseEvent('mousemove', {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                });
+                canvas.dispatchEvent(mouseEvent);
+            });
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                const mouseEvent = new MouseEvent('mouseup', {});
+                canvas.dispatchEvent(mouseEvent);
+            });
+        }
+
+        function getMousePos(canvas, evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (evt.clientX - rect.left) * (canvas.width / rect.width),
+                y: (evt.clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        function startDraw(e) {
+            isDrawing = true;
+            const pos = getMousePos(canvas, e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const pos = getMousePos(canvas, e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            document.getElementById('signatureDataUrl').value = canvas.toDataURL();
+        }
+
+        function stopDraw() {
+            isDrawing = false;
+        }
+
+        function clearSignature() {
+            if (!ctx) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            document.getElementById('signatureDataUrl').value = '';
+        }
+
+        function setProgressPercent(val) {
+            document.getElementById('progressSlider').value = val;
+            document.getElementById('progressTextVal').innerText = val + '%';
+        }
+
+        function saveData() {
+            localStorage.setItem('mahakam_rt_reports', JSON.stringify(rtReports));
+            localStorage.setItem('mahakam_dasawisma_reports', JSON.stringify(dasawismaReports));
+        }
+
+        function clearAllHistory() {
+            if (confirm('Apakah Anda yakin ingin menghapus SELURUH histori laporan RT dan Dasawisma?')) {
+                rtReports = [];
+                dasawismaReports = [];
+                localStorage.removeItem('mahakam_rt_reports');
+                localStorage.removeItem('mahakam_dasawisma_reports');
+                renderApp();
+                showAlert('Semua histori laporan berhasil dikosongkan.');
+            }
+        }
+
+        function onFilterKecamatanChange() {
+            const kec = document.getElementById('filterKecamatan').value;
+            const kampSelect = document.getElementById('filterKampung');
+            kampSelect.innerHTML = '<option value="">Semua Kampung</option>';
+            if (kec && mahakamUluData[kec]) {
+                mahakamUluData[kec].forEach(k => {
+                    const opt = document.createElement('option');
+                    opt.value = k;
+                    opt.innerText = k;
+                    kampSelect.appendChild(opt);
+                });
+            }
+            filterReports();
+        }
+
+        function onFormKecamatanChange() {
+            const kec = document.getElementById('formKecamatan').value;
+            const kampSelect = document.getElementById('formKampung');
+            kampSelect.innerHTML = '<option value="">-- Pilih Kampung --</option>';
+            if (kec && mahakamUluData[kec]) {
+                mahakamUluData[kec].forEach(k => {
+                    const opt = document.createElement('option');
+                    opt.value = k;
+                    opt.innerText = k;
+                    kampSelect.appendChild(opt);
+                });
+            }
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            const btnRt = document.getElementById('tabBtnRt');
+            const btnDasawisma = document.getElementById('tabBtnDasawisma');
+            const btnAddText = document.getElementById('btnAddText');
+
+            if (tab === 'rt') {
+                btnRt.className = 'pb-3 font-bold text-sm sm:text-base border-b-2 border-blue-600 text-blue-600 flex items-center space-x-2 transition cursor-pointer';
+                btnDasawisma.className = 'pb-3 font-bold text-sm sm:text-base border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 transition cursor-pointer';
+                btnAddText.innerText = 'Tambah Laporan RT';
+            } else {
+                btnDasawisma.className = 'pb-3 font-bold text-sm sm:text-base border-b-2 border-blue-600 text-blue-600 flex items-center space-x-2 transition cursor-pointer';
+                btnRt.className = 'pb-3 font-bold text-sm sm:text-base border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2 transition cursor-pointer';
+                btnAddText.innerText = 'Tambah Laporan Dasawisma';
+            }
+            renderApp();
+        }
+
+        function renderApp() {
+            updateDashboard();
+            renderReports();
+        }
+
+        function updateDashboard() {
+            document.getElementById('badgeRt').innerText = rtReports.length;
+            document.getElementById('badgeDasawisma').innerText = dasawismaReports.length;
+            document.getElementById('statTotal').innerText = rtReports.length + dasawismaReports.length;
+
+            const allProgress = [...rtReports.map(r => Number(r.progress)), ...dasawismaReports.map(d => Number(d.progress))];
+            const avg = allProgress.length > 0 ? Math.round(allProgress.reduce((a, b) => a + b, 0) / allProgress.length) : 0;
+            document.getElementById('statAvgProgress').innerText = avg + '%';
+            document.getElementById('statAvgBar').style.width = avg + '%';
+
+            const totalRencana = [...rtReports, ...dasawismaReports].reduce((acc, curr) => acc + Number(curr.budgetPlan || 0), 0);
+            const totalRealisasi = [...rtReports, ...dasawismaReports].reduce((acc, curr) => acc + Number(curr.budgetRealized || 0), 0);
+            document.getElementById('statTotalRencana').innerText = formatRupiah(totalRencana);
+            document.getElementById('statTotalRealisasi').innerText = formatRupiah(totalRealisasi);
+        }
+
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(angka);
+        }
+
+        function renderReports() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const filterKec = document.getElementById('filterKecamatan').value;
+            const filterKamp = document.getElementById('filterKampung').value;
+
+            let dataList = currentTab === 'rt' ? rtReports : dasawismaReports;
+            const filtered = dataList.filter(item => {
+                const matchSearch = (item.activityName || item.groupName || '').toLowerCase().includes(searchVal) || 
+                                    (item.facilitatorName || '').toLowerCase().includes(searchVal) || 
+                                    item.kampung.toLowerCase().includes(searchVal);
+                const matchKec = filterKec === "" || item.kecamatan === filterKec;
+                const matchKamp = filterKamp === "" || item.kampung === filterKamp;
+                return matchSearch && matchKec && matchKamp;
+            });
+
+            const emptyState = document.getElementById('emptyState');
+            const cardContainer = document.getElementById('cardContainer');
+            const tableContainer = document.getElementById('tableContainer');
+
+            if (filtered.length === 0) {
+                emptyState.classList.remove('hidden');
+                cardContainer.innerHTML = '';
+                tableContainer.classList.add('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            if (currentViewMode === 'card') {
+                cardContainer.classList.remove('hidden');
+                tableContainer.classList.add('hidden');
+                
+                if (currentTab === 'rt') {
+                    cardContainer.innerHTML = filtered.map(r => `
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+                            <div>
+                                <div class="relative h-48 bg-slate-100 overflow-hidden">
+                                    <img src="${r.photo || 'https://placehold.co/600x400/e2e8f0/64748b?text=No+Photo'}" alt="${r.activityName}" class="w-full h-full object-cover">
+                                    <span class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-full">
+                                        <i class="fa-solid fa-location-dot text-blue-400 mr-1"></i> ${r.kampung} (${r.rtNumber})
+                                    </span>
+                                    <span class="absolute top-3 right-3 ${getProgressBadgeClass(r.progress)} text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
+                                        ${r.progress}%
+                                    </span>
+                                </div>
+                                <div class="p-5 space-y-3">
+                                    <div class="text-[11px] font-semibold text-blue-600 uppercase tracking-wider"><i class="fa-solid fa-map-pin mr-1"></i> Kec. ${r.kecamatan}</div>
+                                    <h3 class="font-bold text-base text-slate-900 leading-tight">${r.activityName}</h3>
+                                    <p class="text-xs text-slate-600 line-clamp-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100">${r.description || ''}</p>
+                                    
+                                    <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                        <div>
+                                            <span class="text-slate-400 block text-[10px] uppercase font-semibold">Anggaran Rencana</span>
+                                            <strong class="text-slate-800">${formatRupiah(r.budgetPlan)}</strong>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-400 block text-[10px] uppercase font-semibold">Realisasi</span>
+                                            <strong class="text-emerald-600">${formatRupiah(r.budgetRealized)}</strong>
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-slate-500 flex items-center justify-between pt-1">
+                                        <span><i class="fa-solid fa-user-tie text-slate-400 mr-1"></i> ${r.facilitatorName}</span>
+                                        ${r.signature ? `<img src="${r.signature}" class="h-6 w-20 object-contain border border-dashed rounded bg-slate-50" title="TTD Pendamping">` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
+                                <span class="text-slate-400"><i class="fa-regular fa-calendar mr-1"></i> ${r.date}</span>
+                                <div class="flex items-center space-x-1">
+                                    <button type="button" onclick="viewDetail('${r.id}', 'rt')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer"><i class="fa-solid fa-eye"></i></button>
+                                    <button type="button" onclick="openModal('${r.id}', 'rt')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition cursor-pointer"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button type="button" onclick="deleteReport('${r.id}', 'rt')" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    cardContainer.innerHTML = filtered.map(d => `
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+                            <div>
+                                <div class="relative h-48 bg-slate-100 overflow-hidden">
+                                    <img src="${d.photo || 'https://placehold.co/600x400/e2e8f0/64748b?text=No+Photo'}" alt="${d.groupName}" class="w-full h-full object-cover">
+                                    <span class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-full">
+                                        <i class="fa-solid fa-location-dot text-emerald-400 mr-1"></i> ${d.kampung} (${d.rtNumber})
+                                    </span>
+                                    <span class="absolute top-3 right-3 ${getProgressBadgeClass(d.progress)} text-xs font-bold px-2.5 py-1 rounded-full shadow-sm">
+                                        ${d.progress}%
+                                    </span>
+                                </div>
+                                <div class="p-5 space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider"><i class="fa-solid fa-map-pin mr-1"></i> Kec. ${d.kecamatan}</span>
+                                        <span class="px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-lg text-[10px] font-bold">${d.activityType}</span>
+                                    </div>
+                                    <h3 class="font-bold text-base text-slate-900 mt-0.5">${d.groupName}</h3>
+                                    <p class="text-xs text-slate-600 line-clamp-2 bg-slate-50 p-2.5 rounded-xl border border-slate-100 italic">"${d.notes || ''}"</p>
+                                    
+                                    <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                        <div>
+                                            <span class="text-slate-400 block text-[10px] uppercase font-semibold">Anggaran Rencana</span>
+                                            <strong class="text-slate-800">${formatRupiah(d.budgetPlan)}</strong>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-400 block text-[10px] uppercase font-semibold">Realisasi</span>
+                                            <strong class="text-emerald-600">${formatRupiah(d.budgetRealized)}</strong>
+                                        </div>
+                                    </div>
+                                    <div class="text-xs text-slate-500 flex items-center justify-between pt-1">
+                                        <span><i class="fa-solid fa-user-tie text-slate-400 mr-1"></i> ${d.facilitatorName}</span>
+                                        ${d.signature ? `<img src="${d.signature}" class="h-6 w-20 object-contain border border-dashed rounded bg-slate-50" title="TTD Pendamping">` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
+                                <span class="text-slate-400"><i class="fa-regular fa-calendar mr-1"></i> ${d.date}</span>
+                                <div class="flex items-center space-x-1">
+                                    <button type="button" onclick="viewDetail('${d.id}', 'dasawisma')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer"><i class="fa-solid fa-eye"></i></button>
+                                    <button type="button" onclick="openModal('${d.id}', 'dasawisma')" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition cursor-pointer"><i class="fa-solid fa-pen-to-square"></i></button>
+                                    <button type="button" onclick="deleteReport('${d.id}', 'dasawisma')" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } else {
+                cardContainer.classList.add('hidden');
+                tableContainer.classList.remove('hidden');
+                const tableHeader = document.getElementById('tableHeader');
+                const tableBody = document.getElementById('tableBody');
+
+                if (currentTab === 'rt') {
+                    tableHeader.innerHTML = `
+                        <th class="px-6 py-4">Wilayah & Kegiatan RT</th>
+                        <th class="px-6 py-4">Pendamping</th>
+                        <th class="px-6 py-4">Anggaran</th>
+                        <th class="px-6 py-4">Progres</th>
+                        <th class="px-6 py-4">Dokumentasi</th>
+                        <th class="px-6 py-4 text-right">Aksi</th>
+                    `;
+                    tableBody.innerHTML = filtered.map(r => `
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-slate-900">${r.activityName}</div>
+                                <div class="text-xs text-blue-600 font-medium mt-0.5"><i class="fa-solid fa-location-dot mr-1"></i> Kampung ${r.kampung} (${r.rtNumber})</div>
+                            </td>
+                            <td class="px-6 py-4 text-xs font-medium text-slate-700">${r.facilitatorName}</td>
+                            <td class="px-6 py-4 text-xs">
+                                <div>R: ${formatRupiah(r.budgetPlan)}</div>
+                                <div class="text-emerald-600 font-semibold">Re: ${formatRupiah(r.budgetRealized)}</div>
+                            </td>
+                            <td class="px-6 py-4"><span class="font-bold text-xs">${r.progress}%</span></td>
+                            <td class="px-6 py-4"><img src="${r.photo || ''}" class="w-12 h-10 object-cover rounded-lg border shadow-sm"></td>
+                            <td class="px-6 py-4 text-right space-x-1">
+                                <button type="button" onclick="viewDetail('${r.id}', 'rt')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg cursor-pointer"><i class="fa-solid fa-eye"></i></button>
+                                <button type="button" onclick="openModal('${r.id}', 'rt')" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg cursor-pointer"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button type="button" onclick="deleteReport('${r.id}', 'rt')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tableHeader.innerHTML = `
+                        <th class="px-6 py-4">Dasawisma & Wilayah</th>
+                        <th class="px-6 py-4">Pendamping</th>
+                        <th class="px-6 py-4">Jenis Kegiatan</th>
+                        <th class="px-6 py-4">Progres</th>
+                        <th class="px-6 py-4">Dokumentasi</th>
+                        <th class="px-6 py-4 text-right">Aksi</th>
+                    `;
+                    tableBody.innerHTML = filtered.map(d => `
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-slate-900">${d.groupName}</div>
+                                <div class="text-xs text-emerald-600 font-medium mt-0.5"><i class="fa-solid fa-location-dot mr-1"></i> Kampung ${d.kampung} (${d.rtNumber})</div>
+                            </td>
+                            <td class="px-6 py-4 text-xs font-medium text-slate-700">${d.facilitatorName}</td>
+                            <td class="px-6 py-4"><span class="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium">${d.activityType}</span></td>
+                            <td class="px-6 py-4"><span class="font-bold text-xs">${d.progress}%</span></td>
+                            <td class="px-6 py-4"><img src="${d.photo || ''}" class="w-12 h-10 object-cover rounded-lg border shadow-sm"></td>
+                            <td class="px-6 py-4 text-right space-x-1">
+                                <button type="button" onclick="viewDetail('${d.id}', 'dasawisma')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg cursor-pointer"><i class="fa-solid fa-eye"></i></button>
+                                <button type="button" onclick="openModal('${d.id}', 'dasawisma')" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg cursor-pointer"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button type="button" onclick="deleteReport('${d.id}', 'dasawisma')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg cursor-pointer"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            }
+        }
+
+        function getProgressBadgeClass(val) {
+            if (val == 100) return 'bg-emerald-100 text-emerald-800 border border-emerald-300';
+            if (val >= 50) return 'bg-blue-100 text-blue-800 border border-blue-300';
+            return 'bg-amber-100 text-amber-800 border border-amber-300';
+        }
+
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            if (mode === 'card') {
+                document.getElementById('btnCardView').className = 'p-2 rounded-lg text-blue-600 bg-white shadow-sm transition text-xs font-semibold px-3 flex-1 cursor-pointer';
+                document.getElementById('btnTableView').className = 'p-2 rounded-lg text-slate-600 hover:text-slate-900 transition text-xs font-semibold px-3 flex-1 cursor-pointer';
+            } else {
+                document.getElementById('btnTableView').className = 'p-2 rounded-lg text-blue-600 bg-white shadow-sm transition text-xs font-semibold px-3 flex-1 cursor-pointer';
+                document.getElementById('btnCardView').className = 'p-2 rounded-lg text-slate-600 hover:text-slate-900 transition text-xs font-semibold px-3 flex-1 cursor-pointer';
+            }
+            renderReports();
+        }
+
+        function filterReports() {
+            renderReports();
+        }
+
+        function openModal(editId = null, tabOverride = null) {
+            const activeTab = tabOverride || currentTab;
+            document.getElementById('reportModal').classList.remove('hidden');
+            document.getElementById('formType').value = activeTab;
+            const fieldsContainer = document.getElementById('dynamicFormFields');
+            clearSignature();
+
+            if (editId) {
+                document.getElementById('modalTitle').innerText = activeTab === 'rt' ? 'Edit Laporan Kegiatan RT' : 'Edit Laporan Dasawisma';
+                const dataset = activeTab === 'rt' ? rtReports : dasawismaReports;
+                const item = dataset.find(i => i.id === editId);
+                if (item) {
+                    document.getElementById('reportId').value = item.id;
+                    document.getElementById('facilitatorName').value = item.facilitatorName || '';
+                    document.getElementById('reportDate').value = item.date || new Date().toISOString().split('T')[0];
+                    document.getElementById('formKecamatan').value = item.kecamatan;
+                    onFormKecamatanChange();
+                    document.getElementById('formKampung').value = item.kampung;
+                    setProgressPercent(item.progress);
+
+                    document.getElementById('photoUrl').value = item.photo;
+                    if(item.photo) {
+                        document.getElementById('imagePreview').src = item.photo;
+                        document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                    }
+                    if(item.signature) {
+                        document.getElementById('signatureDataUrl').value = item.signature;
+                        const img = new Image();
+                        img.onload = () => {
+                            if (ctx) ctx.drawImage(img, 0, 0);
+                        };
+                        img.src = item.signature;
+                    }
+
+                    if (activeTab === 'rt') {
+                        fieldsContainer.innerHTML = `
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Nomor RT</label>
+                                <input type="text" id="rtNumber" required value="${item.rtNumber}" placeholder="Contoh: RT 01" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Nama Kegiatan RT</label>
+                                <input type="text" id="activityName" required value="${item.activityName}" placeholder="Contoh: Perbaikan Jalan RT" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600">
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Anggaran Rencana (Rp)</label>
+                                    <input type="number" id="budgetPlan" required value="${item.budgetPlan}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Anggaran Realisasi (Rp)</label>
+                                    <input type="number" id="budgetRealized" required value="${item.budgetRealized}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Uraian Kegiatan</label>
+                                <textarea id="description" rows="3" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">${item.description}</textarea>
+                            </div>
+                        `;
+                    } else {
+                        fieldsContainer.innerHTML = `
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Nama Dasawisma</label>
+                                    <input type="text" id="groupName" required value="${item.groupName}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Nomor RT Terkait</label>
+                                    <input type="text" id="rtNumber" required value="${item.rtNumber}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Jenis Kegiatan</label>
+                                <select id="activityType" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium">
+                                    <option value="Pendataan Warga & Keluarga" ${item.activityType==='Pendataan Warga & Keluarga'?'selected':''}>Pendataan Warga & Keluarga</option>
+                                    <option value="Penyuluhan Kesehatan & Stunting" ${item.activityType==='Penyuluhan Kesehatan & Stunting'?'selected':''}>Penyuluhan Kesehatan & Stunting</option>
+                                    <option value="Kebersihan & Penghijauan Lingkungan" ${item.activityType==='Kebersihan & Penghijauan Lingkungan'?'selected':''}>Kebersihan & Penghijauan Lingkungan</option>
+                                    <option value="PKK & Ekonomi Produktif / UP2K" ${item.activityType==='PKK & Ekonomi Produktif / UP2K'?'selected':''}>PKK & Ekonomi Produktif / UP2K</option>
+                                    <option value="Gotong Royong & Posyandu" ${item.activityType==='Gotong Royong & Posyandu'?'selected':''}>Gotong Royong & Posyandu</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Anggaran Rencana (Rp)</label>
+                                    <input type="number" id="budgetPlan" required value="${item.budgetPlan}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Anggaran Realisasi (Rp)</label>
+                                    <input type="number" id="budgetRealized" required value="${item.budgetRealized}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Keterangan</label>
+                                <textarea id="notes" rows="3" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">${item.notes}</textarea>
+                            </div>
+                        `;
+                    }
+                }
+            } else {
+                document.getElementById('modalTitle').innerText = activeTab === 'rt' ? 'Tambah Laporan Kegiatan RT' : 'Tambah Laporan Dasawisma';
+                document.getElementById('reportForm').reset();
+                document.getElementById('reportId').value = '';
+                document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+                setProgressPercent(50);
+                document.getElementById('photoUrl').value = '';
+                document.getElementById('imagePreviewContainer').classList.add('hidden');
+                document.getElementById('formKampung').innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
+
+                if (activeTab === 'rt') {
+                    fieldsContainer.innerHTML = `
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Nomor RT</label>
+                            <input type="text" id="rtNumber" required placeholder="Contoh: RT 01" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Nama Kegiatan RT</label>
+                            <input type="text" id="activityName" required placeholder="Contoh: Perbaikan Jalan RT" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Anggaran Rencana (Rp)</label>
+                                <input type="number" id="budgetPlan" required placeholder="5000000" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Anggaran Realisasi (Rp)</label>
+                                <input type="number" id="budgetRealized" required placeholder="4800000" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Uraian Kegiatan</label>
+                            <textarea id="description" rows="3" required placeholder="Tuliskan detail pelaksanaan kegiatan..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm"></textarea>
+                        </div>
+                    `;
+                } else {
+                    fieldsContainer.innerHTML = `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Nama Dasawisma</label>
+                                <input type="text" id="groupName" required placeholder="Contoh: Dasawisma Melati" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Nomor RT Terkait</label>
+                                <input type="text" id="rtNumber" required placeholder="Contoh: RT 02" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Jenis Kegiatan</label>
+                            <select id="activityType" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium">
+                                <option value="Pendataan Warga & Keluarga">Pendataan Warga & Keluarga</option>
+                                <option value="Penyuluhan Kesehatan & Stunting">Penyuluhan Kesehatan & Stunting</option>
+                                <option value="Kebersihan & Penghijauan Lingkungan">Kebersihan & Penghijauan Lingkungan</option>
+                                <option value="PKK & Ekonomi Produktif / UP2K">PKK & Ekonomi Produktif / UP2K</option>
+                                <option value="Gotong Royong & Posyandu">Gotong Royong & Posyandu</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Anggaran Rencana (Rp)</label>
+                                <input type="number" id="budgetPlan" required placeholder="2000000" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Anggaran Realisasi (Rp)</label>
+                                <input type="number" id="budgetRealized" required placeholder="2000000" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase mb-1.5">Keterangan</label>
+                            <textarea id="notes" rows="3" required placeholder="Catatan khusus pelaksanaan..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm"></textarea>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('reportModal').classList.add('hidden');
+        }
+
+        function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64 = e.target.result;
+                    document.getElementById('photoUrl').value = base64;
+                    document.getElementById('imagePreview').src = base64;
+                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removePhoto() {
+            document.getElementById('photoUrl').value = '';
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+            document.getElementById('photoFile').value = '';
+        }
+
+        function saveReport(e) {
+            e.preventDefault();
+            const id = document.getElementById('reportId').value;
+            const type = document.getElementById('formType').value;
+            const facilitatorName = document.getElementById('facilitatorName').value;
+            const date = document.getElementById('reportDate').value;
+            const kecamatan = document.getElementById('formKecamatan').value;
+            const kampung = document.getElementById('formKampung').value;
+            const rtNumber = document.getElementById('rtNumber').value;
+            const progress = document.getElementById('progressSlider').value;
+            const photo = document.getElementById('photoUrl').value || 'https://placehold.co/600x400/2563eb/ffffff?text=Dokumentasi';
+            const signature = document.getElementById('signatureDataUrl').value;
+
+            if (!kecamatan || !kampung) {
+                alert('Silakan pilih Kecamatan dan Kampung.');
+                return;
+            }
+
+            if (type === 'rt') {
+                const activityName = document.getElementById('activityName').value;
+                const budgetPlan = Number(document.getElementById('budgetPlan').value);
+                const budgetRealized = Number(document.getElementById('budgetRealized').value);
+                const description = document.getElementById('description').value;
+
+                if (id) {
+                    const idx = rtReports.findIndex(r => r.id === id);
+                    if (idx !== -1) rtReports[idx] = { ...rtReports[idx], facilitatorName, date, kecamatan, kampung, rtNumber, activityName, budgetPlan, budgetRealized, description, progress, photo, signature };
+                    showAlert('Berhasil memperbarui laporan RT.');
+                } else {
+                    rtReports.unshift({ id: 'rt_' + Date.now(), type: 'rt', facilitatorName, date, kecamatan, kampung, rtNumber, activityName, budgetPlan, budgetRealized, description, progress, photo, signature });
+                    showAlert('Berhasil menambahkan laporan RT.');
+                }
+            } else {
+                const groupName = document.getElementById('groupName').value;
+                const activityType = document.getElementById('activityType').value;
+                const budgetPlan = Number(document.getElementById('budgetPlan').value);
+                const budgetRealized = Number(document.getElementById('budgetRealized').value);
+                const notes = document.getElementById('notes').value;
+
+                if (id) {
+                    const idx = dasawismaReports.findIndex(d => d.id === id);
+                    if (idx !== -1) dasawismaReports[idx] = { ...dasawismaReports[idx], facilitatorName, date, kecamatan, kampung, rtNumber, groupName, activityType, budgetPlan, budgetRealized, notes, progress, photo, signature };
+                    showAlert('Berhasil memperbarui laporan Dasawisma.');
+                } else {
+                    dasawismaReports.unshift({ id: 'dw_' + Date.now(), type: 'dasawisma', facilitatorName, date, kecamatan, kampung, rtNumber, groupName, activityType, budgetPlan, budgetRealized, notes, progress, photo, signature });
+                    showAlert('Berhasil menambahkan laporan Dasawisma.');
+                }
+            }
+
+            saveData();
+            renderApp();
+            closeModal();
+        }
+
+        function deleteReport(id, tab) {
+            if (confirm('Hapus laporan ini?')) {
+                if (tab === 'rt') rtReports = rtReports.filter(r => r.id !== id);
+                else dasawismaReports = dasawismaReports.filter(d => d.id !== id);
+                saveData();
+                renderApp();
+                showAlert('Laporan berhasil dihapus.');
+            }
+        }
+
+        function viewDetail(id, tab) {
+            const dataset = tab === 'rt' ? rtReports : dasawismaReports;
+            const item = dataset.find(i => i.id === id);
+            if (!item) return;
+
+            document.getElementById('detailContent').innerHTML = `
+                <div class="space-y-4">
+                    <img src="${item.photo || ''}" class="w-full h-48 object-cover rounded-xl border">
+                    <div class="flex items-center justify-between text-xs font-semibold">
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full">Kampung ${item.kampung} (${item.rtNumber})</span>
+                        <span class="text-slate-400">${item.date}</span>
+                    </div>
+                    <div>
+                        <div class="text-xs font-semibold text-blue-600 uppercase">Kecamatan ${item.kecamatan}</div>
+                        <h4 class="font-bold text-lg text-slate-900">${item.activityName || item.groupName}</h4>
+                        <p class="text-xs text-slate-500 mt-1"><i class="fa-solid fa-user-tie mr-1"></i> Pendamping: <strong>${item.facilitatorName}</strong></p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-xl border">
+                        <div><span class="text-slate-400 block">Rencana:</span> <strong>${formatRupiah(item.budgetPlan)}</strong></div>
+                        <div><span class="text-slate-400 block">Realisasi:</span> <strong class="text-emerald-600">${formatRupiah(item.budgetRealized)}</strong></div>
+                    </div>
+                    <div>
+                        <span class="text-xs font-semibold uppercase text-slate-700 block mb-1">Uraian / Catatan:</span>
+                        <p class="text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border">${item.description || item.notes || '-'}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs font-semibold uppercase text-slate-700 block mb-1">Tanda Tangan Pendamping:</span>
+                        <div class="bg-slate-50 p-3 rounded-xl border inline-block">
+                            ${item.signature ? `<img src="${item.signature}" class="h-16 object-contain">` : '<span class="text-xs text-slate-400">Tidak ada TTD</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function exportData(format) {
+            showAlert(`Simulasi Export ke ${format.toUpperCase()} berhasil dijalankan.`);
+        }
+
+        function showAlert(msg) {
+            const alertBox = document.getElementById('alertBox');
+            document.getElementById('alertMessage').innerText = msg;
+            alertBox.classList.remove('hidden');
+            setTimeout(() => { hideAlert(); }, 4000);
+        }
+
+        function hideAlert() {
+            document.getElementById('alertBox').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
